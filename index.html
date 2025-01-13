@@ -42,32 +42,41 @@
             border: 0;
             -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
          }
-
-         input, textarea, select, button {
-            font-size: 16px; /* Prevent zooming on focus */
-         }
       </style>
    </head>
    <body>
       <iframe 
          id="webframe"
-         src="https://script.google.com/macros/s/AKfycbzhaj9X2M8Px7m0-wM_ODtYbBgwlGgNeV5WZxUOFICTiXdsyoWSdjiVtGd8Hk8Leic6/exec">
+         src="https://script.google.com/macros/s/AKfycbzhaj9X2M8Px7m0-wM_ODtYbBgwlGgNeV5WZxUOFICTiXdsyoWSdjiVtGd8Hk8Leic6/exec"
+         allow="autoplay; fullscreen"
+         sandbox="allow-forms allow-same-origin allow-scripts allow-popups">
       </iframe>
 
-      <!-- Fix for iOS Input Issue -->
+      <!-- iOS Focus and Keyboard Fix -->
       <script>
          document.addEventListener('touchstart', function(event) {
             const iframe = document.getElementById('webframe');
-            if (iframe && iframe.contentWindow) {
-               iframe.contentWindow.postMessage({ action: 'focus' }, '*');
+            if (iframe) {
+               iframe.contentWindow.focus();
             }
          });
 
-         // iOS Workaround for iframe focus
-         window.addEventListener('blur', () => {
-            setTimeout(() => {
-               window.focus();
-            }, 100);
+         // Ensure iframe gets focus properly on iOS
+         document.getElementById('webframe').addEventListener('load', function() {
+            const iframe = this;
+            iframe.contentWindow.document.body.addEventListener('click', function() {
+               iframe.contentWindow.focus();
+            });
+         });
+
+         // iOS Specific: Force keyboard to show
+         document.addEventListener('focusin', function(event) {
+            if (event.target.tagName === 'IFRAME') {
+               setTimeout(() => {
+                  event.target.blur(); // Temporarily blur
+                  event.target.focus(); // Force refocus to show keyboard
+               }, 50);
+            }
          });
       </script>
    </body>
